@@ -1,15 +1,13 @@
 name: "HA Status Monitor"
-version: "1.0.1"
+version: "1.0.2"
 slug: "ha_status_monitor"
 description: "Reports Home Assistant to remote server every 5 minutes."
+
 arch:
   - amd64
 
 startup: services
 boot: auto
-
-host_network: true
-host_pid: true
 
 homeassistant_api: true
 
