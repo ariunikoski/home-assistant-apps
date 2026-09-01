@@ -1,12 +1,12 @@
 
 ```bash
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/with-contenv bash
 
 REPORT_URL="https://unikoski.org/home_assistant_status"
 INTERFACE="wlp2s0"
 INTERVAL=300
 
-API_KEY="$(bashio::config 'api_key')"
+API_KEY="$(jq -r '.api_key // empty' /data/options.json)"
 
 log() {
     bashio::log.info "$1"
@@ -20,7 +20,7 @@ log "Report interval: ${INTERVAL} seconds"
 log "=========================================="
 
 if [ -z "${API_KEY}" ]; then
-    bashio::log.error "No API key has been configured."
+    echo "[ERROR] No API key has been configured."
     exit 1
 fi
 
@@ -100,8 +100,8 @@ while true; do
 
     else
 
-        bashio::log.warning \
-            "${TIMESTAMP}: failed to send status report"
+        echo \
+            "[WARNING] ${TIMESTAMP}: failed to send status report"
 
     fi
 
