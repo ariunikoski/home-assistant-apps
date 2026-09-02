@@ -9,7 +9,7 @@ INTERVAL=300
 API_KEY="$(jq -r '.api_key // empty' /data/options.json)"
 
 log() {
-    bashio::log.info "$1"
+    echo "[INFO] $1"
 }
 
 log "=========================================="
