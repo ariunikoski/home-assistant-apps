@@ -27,11 +27,13 @@ fi
 get_entity_state() {
     local entity_id="$1"
 
+    echo "DEBUG: About to get entity state"
     curl -fsS \
         -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
         -H "Content-Type: application/json" \
         --max-time 10 \
         "http://supervisor/core/api/states/${entity_id}"
+    echo "DEBUG: AFter get entity state"
 }
 
 send_status() {
@@ -41,10 +43,11 @@ send_status() {
     local connected_message="$4"
     local disconnected_message="$5"
 
+    echo "DEBUG: About to send status"
     curl -fsS \
         --max-time 15 \
         -X POST \
-        -H "Content-Type: application/json" \
+        -H "Content-Type: x-www-form-urlencoded" \
         -H "X-API-Key: ${API_KEY}" \
         --data-urlencode "status=${status}" \
         --data-urlencode "status_message=${status_message}" \
@@ -53,6 +56,7 @@ send_status() {
         --data-urlencode "disconnected_message=${disconnected_message}" \
         "${REPORT_URL}" \
         >/dev/null
+    echo "DEBUG: AFter send status"
 }
 
 while true; do
