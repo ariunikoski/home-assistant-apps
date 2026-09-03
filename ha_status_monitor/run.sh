@@ -25,13 +25,11 @@ fi
 get_entity_state() {
     local entity_id="$1"
 
-    echo "DEBUG: About to get entity state"
     curl -fsS \
         -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
         -H "Content-Type: application/json" \
         --max-time 10 \
         "http://supervisor/core/api/states/${entity_id}"
-    echo "DEBUG: AFter status"
 }
 
 send_status() {
@@ -61,8 +59,13 @@ while true; do
 
     TIMESTAMP="$(date -Iseconds)"
 
-    HOME_ASSISTANT_HEALTH="$(get_entity_state sensor.home_assistant_health || true)"
-    SMART_HOME_HEALTH="$(get_entity_state sensor.smart_home_device_health || true)"
+    echo "[DEBUG] Going to call get_entity_state for HOME_ASSISTANT_HEALTH"
+    HOME_ASSISTANT_HEALTH="$(get_entity_state 'sensor.home_assistant_health' || true)"
+    echo "[DEBUG] Going to call get_entity_state for SMART_HOME_DEVICE_HEALTH"
+    SMART_HOME_HEALTH="$(get_entity_state 'sensor.smart_home_device_health' || true)"
+    echo "[DEBUG] Post calls to get_entity_state"
+    echo "[DEBUG] HOME_ASSISTANT_HEALTH = $HOME_HOME_ASSISTANT_HEALTH"
+    echo "[DEBUG] SMART_HOME_DEVICE_HEALTH = $HOME_SMART_HOME_DEVICE_HEALTH"
 
     HEALTH_STATE="$(printf '%s' "${HOME_ASSISTANT_HEALTH}" |
         jq -r '.state // "unknown"')"
