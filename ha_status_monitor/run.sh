@@ -40,10 +40,13 @@ send_status() {
     local disconnected_message="$5"
 
     echo "DEBUG: About to send status"
-    curl -fsS \
+    # TODO in the future change the -sS -i to -fsF
+    # TODO get rid of all the [DEBUG]
+    curl -sS -i\
         --max-time 15 \
         -X POST \
         -H "Content-Type: x-www-form-urlencoded" \
+        -H "Accept: */*" \
         -H "X-API-Key: ${API_KEY}" \
         --data-urlencode "status=${status}" \
         --data-urlencode "status_message=${status_message}" \
