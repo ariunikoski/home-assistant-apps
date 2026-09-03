@@ -1,5 +1,3 @@
-
-```bash
 #!/usr/bin/with-contenv bash
 
 REPORT_URL="https://unikoski.org/home_assistant_status"
@@ -33,7 +31,7 @@ get_entity_state() {
         -H "Content-Type: application/json" \
         --max-time 10 \
         "http://supervisor/core/api/states/${entity_id}"
-    echo "DEBUG: AFter get entity state"
+    echo "DEBUG: AFter status"
 }
 
 send_status() {
@@ -112,4 +110,3 @@ while true; do
     sleep "${INTERVAL}"
 
 done
-```
