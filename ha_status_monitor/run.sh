@@ -39,10 +39,9 @@ send_status() {
     local connected_message="$4"
     local disconnected_message="$5"
 
-    echo "DEBUG: About to send status"
     # TODO in the future change the -sS -i to -fsF
     # TODO get rid of all the [DEBUG]
-    curl -sS -i\
+    curl_out=$(curl -sS -i\
         --max-time 15 \
         -X POST \
         -H "Content-Type: x-www-form-urlencoded" \
@@ -54,8 +53,12 @@ send_status() {
         --data-urlencode "connected_message=${connected_message}" \
         --data-urlencode "disconnected_message=${disconnected_message}" \
         "${REPORT_URL}" \
-        >/dev/null
-    echo "DEBUG: AFter send status"
+        2>&1)
+
+        retval=$?
+        echo "[DEBUG] Curl output is $curl_out"
+        echo "[DEBUG] Curl retval is $retval"
+        return $retval
 }
 
 while true; do
@@ -67,8 +70,8 @@ while true; do
     echo "[DEBUG] Going to call get_entity_state for SMART_HOME_DEVICE_HEALTH"
     SMART_HOME_HEALTH="$(get_entity_state 'sensor.smart_home_device_health' || true)"
     echo "[DEBUG] Post calls to get_entity_state"
-    echo "[DEBUG] HOME_ASSISTANT_HEALTH = $HOME_HOME_ASSISTANT_HEALTH"
-    echo "[DEBUG] SMART_HOME_DEVICE_HEALTH = $HOME_SMART_HOME_DEVICE_HEALTH"
+    echo "[DEBUG] HOME_ASSISTANT_HEALTH = $HOME_ASSISTANT_HEALTH"
+    echo "[DEBUG] SMART_HOME_DEVICE_HEALTH = $SMART_HOME_HEALTH"
 
     HEALTH_STATE="$(printf '%s' "${HOME_ASSISTANT_HEALTH}" |
         jq -r '.state // "unknown"')"
@@ -97,6 +100,7 @@ while true; do
 
     log "${TIMESTAMP}: status=${STATUS}, status_message=${STATUS_MESSAGE}, smart_home_status=${SMART_HOME_STATUS}, connected=${CONNECTED_MESSAGE}, disconnected=${DISCONNECTED_MESSAGE}"
 
+    echo "[DEBUG] About to send status"
     if send_status \
         "${STATUS}" \
         "${STATUS_MESSAGE}" \
