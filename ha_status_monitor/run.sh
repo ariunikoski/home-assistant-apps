@@ -44,7 +44,7 @@ send_status() {
     curl_out=$(curl -sS -i\
         --max-time 15 \
         -X POST \
-        -H "Content-Type: x-www-form-urlencoded" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
         -H "Accept: */*" \
         -H "X-API-Key: ${API_KEY}" \
         --data-urlencode "status=${status}" \
@@ -56,6 +56,8 @@ send_status() {
         2>&1)
 
         retval=$?
+        http_status="${curl_out: -3}"
+        echo "[DEBUG] http output is $http_status"
         echo "[DEBUG] Curl output is $curl_out"
         echo "[DEBUG] Curl retval is $retval"
         return $retval

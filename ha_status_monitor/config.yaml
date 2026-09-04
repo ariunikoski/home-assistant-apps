@@ -1,5 +1,5 @@
 name: "HA Status Monitor"
-version: "1.0.13"
+version: "1.0.14"
 slug: "ha_status_monitor"
 description: "Reports Home Assistant to remote server every 5 minutes."
 
