@@ -1,0 +1,29 @@
+name: "Wi-Fi Monitor"
+version: "1.0.0"
+slug: "wifi_monitor"
+description: "Monitors host Wi-Fi connectivity and attempts automatic recovery."
+
+init: false
+
+arch:
+  - amd64
+
+startup: system
+boot: auto
+
+host_dbus: true
+homeassistant_api: true
+
+options:
+  interface: "wlp2s0"
+  connection: "Supervisor wlp2s0"
+  gateway: "192.168.1.1"
+  check_interval: 120
+  max_recovery_attempts: 3
+
+schema:
+  interface: str
+  connection: str
+  gateway: str
+  check_interval: int
+  max_recovery_attempts: int
