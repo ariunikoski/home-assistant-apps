@@ -9,8 +9,8 @@ CHECK_INTERVAL="$(jq -r '.check_interval' "${CONFIG_PATH}")"
 MAX_RECOVERY_ATTEMPTS="$(jq -r '.max_recovery_attempts' "${CONFIG_PATH}")"
 
 SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
-
 RECOVERY_ATTEMPTS=0
+MAX_REPORTED='N'
 
 log() {
     echo "[INFO] $1"
@@ -53,18 +53,18 @@ set_last_recovery_time() {
 
 wifi_connected() {
     local state
-    local nmcli_out
+    local network_info
 
     #state="$(nmcli -t -f DEVICE,STATE device status 2>/dev/null |
         #awk -F: -v dev="${INTERFACE}" '$1 == dev {print $2}')"
-    nmcli_out="$(nmcli -t -f DEVICE,STATE device status)"
-    debug "nmcli_out = $nmcli_out"
+    network_info="$(ha network info wlps20 | grep connected:)"
+    debug "network_info = $network_info"
 
-    state = `echo $nmcli_out | awk -F: -v dev="${INTERFACE}" '$1 == dev {print $2}'`
+    state=`echo $network_info | awk '{print $2}'`
 
     debug "Wi-Fi interface ${INTERFACE} state: ${state}"
 
-    [ "${state}" = "connected" ]
+    [ "${state}" = "true" ]
 }
 
 gateway_reachable() {
@@ -78,10 +78,12 @@ network_ok() {
 restart_wifi() {
     log "Attempting Wi-Fi recovery on ${INTERFACE}"
 
-    nmcli connection down "${CONNECTION}" >/dev/null 2>&1 || true
-    sleep 2
+    #nmcli connection down "${CONNECTION}" >/dev/null 2>&1 || true
+    reload_out=`ha network reload`
+    debug 'reload_out = $reload_out'
+    sleep 3
 
-    nmcli connection up "${CONNECTION}" >/dev/null 2>&1
+    #nmcli connection up "${CONNECTION}" >/dev/null 2>&1
 }
 
 log "---------------------------------------------------"
@@ -96,7 +98,6 @@ log "---------------------------------------------------"
 while true; do
 
     TIMESTAMP="$(date -Iseconds)"
-    MAX_REPORTED='N'
 
     if network_ok; then
 
