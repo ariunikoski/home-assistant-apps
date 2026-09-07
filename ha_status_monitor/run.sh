@@ -57,7 +57,7 @@ send_status() {
         2>&1)
 
         retval=$?
-        http_status="${curl_out| head -1 | awk '{print $2}'}"
+        http_status=`echo curl_out| head -1 | awk '{print $2}'`
         echo "[DEBUG] http output is $http_status"
         echo "[DEBUG] Curl output is $curl_out"
         echo "[DEBUG] Curl retval is $retval"
