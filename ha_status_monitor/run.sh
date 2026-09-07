@@ -39,9 +39,6 @@ send_status() {
     local connected_message="$4"
     local disconnected_message="$5"
 
-    # TODO http_status extraction dooesnt cirk, get forst line of output,
-    #      extact 2nd word, if not 201, print retval and curl_out and then set reval to 1
-    # TODO get rid of all the [DEBUG] (or, make it an option i can turn on/off by adding a new setting)
     curl_out=$(curl -sS -i\
         --max-time 15 \
         -X POST \
@@ -58,9 +55,13 @@ send_status() {
 
         retval=$?
         http_status=`echo $curl_out| head -1 | awk '{print $2}'`
-        echo "[DEBUG] http output is $http_status"
-        echo "[DEBUG] Curl output is $curl_out"
-        echo "[DEBUG] Curl retval is $retval"
+        if [[ "$http_status" != "201 "]]
+        then
+            echo "[ERROR] http status is $http_status"
+            echo "[ERROR] Curl output is $curl_out"
+            echo "[ERROR] Curl retval is $retval - but setting to 255"
+            retval=255
+        fi
         return $retval
 }
 
@@ -68,13 +69,13 @@ while true; do
 
     TIMESTAMP="$(date -Iseconds)"
 
-    echo "[DEBUG] Going to call get_entity_state for HOME_ASSISTANT_HEALTH"
+    #echo "[DEBUG] Going to call get_entity_state for HOME_ASSISTANT_HEALTH"
     HOME_ASSISTANT_HEALTH="$(get_entity_state 'sensor.home_assistant_health' || true)"
-    echo "[DEBUG] Going to call get_entity_state for SMART_HOME_DEVICE_HEALTH"
+    #echo "[DEBUG] Going to call get_entity_state for SMART_HOME_DEVICE_HEALTH"
     SMART_HOME_HEALTH="$(get_entity_state 'sensor.smart_home_device_health' || true)"
-    echo "[DEBUG] Post calls to get_entity_state"
-    echo "[DEBUG] HOME_ASSISTANT_HEALTH = $HOME_ASSISTANT_HEALTH"
-    echo "[DEBUG] SMART_HOME_DEVICE_HEALTH = $SMART_HOME_HEALTH"
+    #echo "[DEBUG] Post calls to get_entity_state"
+    #echo "[DEBUG] HOME_ASSISTANT_HEALTH = $HOME_ASSISTANT_HEALTH"
+    #echo "[DEBUG] SMART_HOME_DEVICE_HEALTH = $SMART_HOME_HEALTH"
 
     HEALTH_STATE="$(printf '%s' "${HOME_ASSISTANT_HEALTH}" |
         jq -r '.state // "unknown"')"
@@ -103,7 +104,7 @@ while true; do
 
     log "${TIMESTAMP}: status=${STATUS}, status_message=${STATUS_MESSAGE}, smart_home_status=${SMART_HOME_STATUS}, connected=${CONNECTED_MESSAGE}, disconnected=${DISCONNECTED_MESSAGE}"
 
-    echo "[DEBUG] About to send status"
+    #echo "[DEBUG] About to send status"
     if send_status \
         "${STATUS}" \
         "${STATUS_MESSAGE}" \
