@@ -55,7 +55,7 @@ send_status() {
 
         retval=$?
         http_status=`echo $curl_out| head -1 | awk '{print $2}'`
-        if [[ "$http_status" != "201 "]]
+        if [[ "$http_status" != "201" ]]
         then
             echo "[ERROR] http status is $http_status"
             echo "[ERROR] Curl output is $curl_out"
