@@ -53,9 +53,14 @@ set_last_recovery_time() {
 
 wifi_connected() {
     local state
+    local nmcli_out
 
-    state="$(nmcli -t -f DEVICE,STATE device status 2>/dev/null |
-        awk -F: -v dev="${INTERFACE}" '$1 == dev {print $2}')"
+    #state="$(nmcli -t -f DEVICE,STATE device status 2>/dev/null |
+        #awk -F: -v dev="${INTERFACE}" '$1 == dev {print $2}')"
+    nmcli_out="$(nmcli -t -f DEVICE,STATE device status)"
+    debug "nmcli_out = $nmcli_out"
+
+    state = `echo $nmcli_out | awk -F: -v dev="${INTERFACE}" '$1 == dev {print $2}'`
 
     debug "Wi-Fi interface ${INTERFACE} state: ${state}"
 
