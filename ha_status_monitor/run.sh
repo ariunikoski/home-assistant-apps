@@ -39,8 +39,9 @@ send_status() {
     local connected_message="$4"
     local disconnected_message="$5"
 
-    # TODO in the future change the -sS -i to -fsF
-    # TODO get rid of all the [DEBUG]
+    # TODO http_status extraction dooesnt cirk, get forst line of output,
+    #      extact 2nd word, if not 201, print retval and curl_out and then set reval to 1
+    # TODO get rid of all the [DEBUG] (or, make it an option i can turn on/off by adding a new setting)
     curl_out=$(curl -sS -i\
         --max-time 15 \
         -X POST \
@@ -56,7 +57,7 @@ send_status() {
         2>&1)
 
         retval=$?
-        http_status="${curl_out: -3}"
+        http_status="${curl_out| head -1 | awk '{print $2}'}"
         echo "[DEBUG] http output is $http_status"
         echo "[DEBUG] Curl output is $curl_out"
         echo "[DEBUG] Curl retval is $retval"
