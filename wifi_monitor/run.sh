@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+#!/usr/bin/with-contenv bash
 
 CONFIG_PATH=/data/options.json
 
@@ -112,9 +112,12 @@ log "Check interval: ${CHECK_INTERVAL}s"
 log "Maximum recovery attempts: ${MAX_RECOVERY_ATTEMPTS}"
 log "---------------------------------------------------"
 
-### remove next two lines once its working... ?
+### remove next lines once its working... ?
 supervisor_test
-log "SUPERVISOR_TOKEN length: ${#SUPERVISOR_TOKEN}"
+debug "SUPERVISOR_TOKEN length: ${#SUPERVISOR_TOKEN}"
+debug "[DEBUG] with-contenv: $(command -v with-contenv)"
+debug "[DEBUG] bash: $(command -v bash)"
+debug "[DEBUG] bashio: $(command -v bashio)"
 
 while true; do
 
