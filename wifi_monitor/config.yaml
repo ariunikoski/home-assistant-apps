@@ -1,5 +1,5 @@
 name: "Wi-Fi Monitor"
-version: "1.0.4"
+version: "1.0.5"
 slug: "wifi_monitor"
 description: "Monitors host Wi-Fi connectivity and attempts automatic recovery."
 
@@ -12,6 +12,7 @@ startup: system
 boot: auto
 
 host_dbus: true
+hassio_api: true
 homeassistant_api: true
 
 options:
