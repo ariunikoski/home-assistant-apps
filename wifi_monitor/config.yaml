@@ -1,5 +1,5 @@
 name: "Wi-Fi Monitor"
-version: "1.0.2"
+version: "1.0.3"
 slug: "wifi_monitor"
 description: "Monitors host Wi-Fi connectivity and attempts automatic recovery."
 

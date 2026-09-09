@@ -52,19 +52,20 @@ set_last_recovery_time() {
 }
 
 wifi_connected() {
-    local state
-    local network_info
+    local response
+    local connected
 
-    #state="$(nmcli -t -f DEVICE,STATE device status 2>/dev/null |
-        #awk -F: -v dev="${INTERFACE}" '$1 == dev {print $2}')"
-    network_info="$(ha network info wlps20 | grep connected:)"
-    debug "network_info = $network_info"
+    response="$(curl -sS \
+        --max-time 10 \
+        -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+        "http://supervisor/network/interface/${INTERFACE}/info")"
 
-    state=`echo $network_info | awk '{print $2}'`
+    connected="$(printf '%s' "${response}" |
+        jq -r '.data.connected // false')"
 
-    debug "Wi-Fi interface ${INTERFACE} state: ${state}"
+    debug "${INTERFACE} connected: ${connected}"
 
-    [ "${state}" = "true" ]
+    [ "${connected}" = "true" ]
 }
 
 gateway_reachable() {
