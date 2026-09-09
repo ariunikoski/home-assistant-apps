@@ -89,6 +89,20 @@ restart_wifi() {
     #nmcli connection up "${CONNECTION}" >/dev/null 2>&1
 }
 
+supervisor_test() {
+    local response
+
+    response="$(curl -sS \
+        --max-time 10 \
+        -w '\nHTTP_STATUS:%{http_code}' \
+        -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+        -H "Content-Type: application/json" \
+        "http://supervisor/supervisor/info")"
+
+    log "Supervisor test:"
+    log "${response}"
+}
+
 log "---------------------------------------------------"
 log "Wi-Fi Watchdog started"
 log "Interface: ${INTERFACE}"
@@ -97,6 +111,10 @@ log "Gateway: ${GATEWAY}"
 log "Check interval: ${CHECK_INTERVAL}s"
 log "Maximum recovery attempts: ${MAX_RECOVERY_ATTEMPTS}"
 log "---------------------------------------------------"
+
+### remove next two lines once its working... ?
+supervisor_test
+log "SUPERVISOR_TOKEN length: ${#SUPERVISOR_TOKEN}"
 
 while true; do
 
