@@ -60,6 +60,8 @@ wifi_connected() {
         -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
         "http://supervisor/network/interface/${INTERFACE}/info")"
 
+    debug "${INTERFACE} response: ${response}"
+
     connected="$(printf '%s' "${response}" |
         jq -r '.data.connected // false')"
 
