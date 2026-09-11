@@ -1,5 +1,5 @@
 name: "Wi-Fi Monitor"
-version: "1.0.9"
+version: "1.0.10"
 slug: "wifi_monitor"
 description: "Monitors host Wi-Fi connectivity and attempts automatic recovery."
 
@@ -22,6 +22,7 @@ options:
   gateway: "192.168.1.1"
   check_interval: 120
   max_recovery_attempts: 3
+  debug: false
 
 schema:
   interface: str
@@ -29,3 +30,4 @@ schema:
   gateway: str
   check_interval: int
   max_recovery_attempts: int
+  debug: bool

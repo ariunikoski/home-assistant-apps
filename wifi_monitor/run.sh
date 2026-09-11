@@ -7,6 +7,7 @@ CONNECTION="$(jq -r '.connection' "${CONFIG_PATH}")"
 GATEWAY="$(jq -r '.gateway' "${CONFIG_PATH}")"
 CHECK_INTERVAL="$(jq -r '.check_interval' "${CONFIG_PATH}")"
 MAX_RECOVERY_ATTEMPTS="$(jq -r '.max_recovery_attempts' "${CONFIG_PATH}")"
+DEBUG="$(jq -r '.debug' "${CONFIG_PATH}")"
 
 SUPERVISOR_TOKEN="${SUPERVISOR_TOKEN}"
 RECOVERY_ATTEMPTS=0
@@ -17,7 +18,9 @@ log() {
 }
 
 debug() {
-    echo "[DEBUG] $1"
+    if [[ "$DEBUG" = 'true' ]]
+        echo "[DEBUG] $1"
+    fi
 }
 
 ha_service() {
@@ -39,7 +42,7 @@ increment_recovery_counter() {
     ha_service \
         counter \
         increment \
-        '{"entity_id":"counter.wifi_recovery_attempts"}'
+        '{"entity_id":"counter.wifi_recovery_attemp"}'
 }
 
 set_last_recovery_time() {
@@ -77,16 +80,21 @@ gateway_reachable() {
 network_ok() {
     wifi_connected && gateway_reachable
 }
-
 restart_wifi() {
-    log "Attempting Wi-Fi recovery on ${INTERFACE}"
+    log "Requesting Supervisor network reload"
 
-    #nmcli connection down "${CONNECTION}" >/dev/null 2>&1 || true
-    reload_out=`ha network reload`
-    debug 'reload_out = $reload_out'
-    sleep 3
+    local response
 
-    #nmcli connection up "${CONNECTION}" >/dev/null 2>&1
+    response="$(curl -sS \
+        --max-time 15 \
+        -X POST \
+        -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+        -H "Content-Type: application/json" \
+        "http://supervisor/network/reload")"
+
+    log "Network reload response: ${response}"
+
+    sleep 10
 }
 
 supervisor_test() {
@@ -110,32 +118,32 @@ log "Connection: ${CONNECTION}"
 log "Gateway: ${GATEWAY}"
 log "Check interval: ${CHECK_INTERVAL}s"
 log "Maximum recovery attempts: ${MAX_RECOVERY_ATTEMPTS}"
-log "---------------------------------------------------"
-
-### remove next lines once its working... ?
-supervisor_test
+log "Debug: ${DEBUG}"
+if [[ "$DEBUG"] = 'true' ]]
+then
+  supervisor_test
+fi
 debug "SUPERVISOR_TOKEN length: ${#SUPERVISOR_TOKEN}"
 debug "[DEBUG] with-contenv: $(command -v with-contenv)"
 debug "[DEBUG] bash: $(command -v bash)"
 debug "[DEBUG] bashio: $(command -v bashio)"
+log "---------------------------------------------------"
 
 while true; do
 
     TIMESTAMP="$(date -Iseconds)"
 
     if network_ok; then
-
         debug "${TIMESTAMP}: Wi-Fi OK"
         RECOVERY_ATTEMPTS=0
         MAX_REPORTED='N'
 
     else
-
-        RECOVERY_ATTEMPTS=$((RECOVERY_ATTEMPTS + 1))
-
         if [ "${RECOVERY_ATTEMPTS}" -le "${MAX_RECOVERY_ATTEMPTS}" ]; then
             log "${TIMESTAMP}: Wi-Fi connectivity lost"
             log "${TIMESTAMP}: Recovery attempt ${RECOVERY_ATTEMPTS}/${MAX_RECOVERY_ATTEMPTS}"
+
+            RECOVERY_ATTEMPTS=$((RECOVERY_ATTEMPTS + 1))
 
             increment_recovery_counter
 
