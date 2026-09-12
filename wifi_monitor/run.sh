@@ -135,7 +135,7 @@ while true; do
     TIMESTAMP="$(date -Iseconds)"
 
     if network_ok; then
-        debug "${TIMESTAMP}: Wi-Fi OK"
+        log "${TIMESTAMP}: Wi-Fi OK"
         RECOVERY_ATTEMPTS=0
         MAX_REPORTED='N'
 
