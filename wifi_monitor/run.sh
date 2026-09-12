@@ -19,6 +19,7 @@ log() {
 
 debug() {
     if [[ "$DEBUG" = 'true' ]]
+    then
         echo "[DEBUG] $1"
     fi
 }
